@@ -55,17 +55,43 @@ class HashTable:
         # index = hash(key) % self.capacity
         # index = _hash_mod(key)
 
-        index = self._hash_mod(key)
+        # index = self._hash_mod(key)
 
-        if self.storage[index] is not None:
-            print(f'WARNING: collision has occured at {index}')
+        # if self.storage[index] is not None:
+        #     print(f'WARNING: collision has occured at {index}')
+
+        # else:
+        #     self.storage[index] = (key, value)
+
+        # return
+
+        pair = LinkedPair(key, value)
+        hash_key = self._hash_mod(key)
+        head = self.storage[hash_key]
+
+        # if hash is empty
+        if not head:
+            self.storage[hash_key] = pair
 
         else:
-            self.storage[index] = (key, value)
+            if head.key == key:
+                pair.next = head.next
+                self.storage[hash_key] = pair
 
-        return
+            else:
+                while head:
 
+                    if not head.next:
+                        head.next = pair
+                        break
 
+                    elif head.next.key == key:
+                        pair.next = head.next.next
+                        head.next = pair
+                        break
+
+                    else:
+                        head = head.next
 
     def remove(self, key):
         '''
@@ -75,18 +101,46 @@ class HashTable:
 
         Fill this in.
         '''
+        # index = self._hash_mod(key)
+
+        # if self.storage[index] is not None:
+        #     if self.storage[index][0] == key:
+        #         self.storage[index] = None
+        #     else:
+        #         print(f'WARNING: collision has occured at {index}')
+
+        # else:
+        #     print(f'Warning key ({key}) not found.')
+
+        # return
+
         index = self._hash_mod(key)
 
         if self.storage[index] is not None:
-            if self.storage[index][0] == key:
-                self.storage[index] = None
-            else:
-                print(f'WARNING: collision has occured at {index}')
+            node = self.storage[index]
+            count = 0
+            while node:
 
-        else:
-            print(f'Warning key ({key}) not found.')
+                if count == 0:
+                    count += 1
 
-        return
+                    if node.key == key:
+                        self.storage[index] = node.next
+                        break
+
+                else:
+                    if node.next:
+                        if node.next.key == key:
+                            node.next = node.next.next
+                            break
+
+                        else:
+                            node = node.next
+
+                    else:
+                        return 'No key'
+
+            return
 
     def retrieve(self, key):
         '''
@@ -96,8 +150,28 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash_mod(key)
 
+        # if self.storage[index] is not None:
+        #     if self.storage[index][0] == key:
+        #         return self.storage[index][1]
+        #     else:
+        #         print(f'WARNING: collision has occured at {index}')
+
+        # else:
+        #     return None
+
+        # return
+
+        if self.storage[index]:
+            node = self.storage[index]
+            while node:
+                if node.key == key:
+                    return node.value
+                else:
+                    node = node.next
+
+        return None
 
     def resize(self):
         '''
@@ -106,41 +180,53 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        old_storage = self.storage
+        self.capacity *= 2
+        # self.storage = [None] * self.capacity
 
+        # for item in old_storage:
+        #     self.insert(item[0], item[1])
+        bigger_table = HashTable(self.capacity)
+        for node in self.storage:
+            while node:
+                index = self._hash_mod(node.key)
+                bigger_table.insert(node.key, node.value)
+                node = node.next
+
+        self.storage = bigger_table.storage
 
 
 if __name__ == "__main__":
-    ht1 = HashTable(2)
+    # ht1 = HashTable(2)
 
-    ht1.insert('key1', 'hello')
-    ht1.insert('key2', 'goodbye')
-    ht1.remove('key1')
+    # ht1.insert('key1', 'hello')
+    # ht1.insert('key2', 'goodbye')
+    # ht1.remove('key1')
 
-    print(ht1.storage)
-    # ht = HashTable(2)
+    # print(ht1.storage)
+    ht = HashTable(2)
 
-    # ht.insert("line_1", "Tiny hash table")
-    # ht.insert("line_2", "Filled beyond capacity")
-    # ht.insert("line_3", "Linked list saves the day!")
+    ht.insert("line_1", "Tiny hash table")
+    ht.insert("line_2", "Filled beyond capacity")
+    ht.insert("line_3", "Linked list saves the day!")
 
-    # print("")
+    print("")
 
-    # # Test storing beyond capacity
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
+    # Test storing beyond capacity
+    print(ht.retrieve("line_1"))
+    print(ht.retrieve("line_2"))
+    print(ht.retrieve("line_3"))
 
-    # # Test resizing
-    # old_capacity = len(ht.storage)
-    # ht.resize()
-    # new_capacity = len(ht.storage)
+    # Test resizing
+    old_capacity = len(ht.storage)
+    ht.resize()
+    new_capacity = len(ht.storage)
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # # Test if data intact after resizing
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
+    # Test if data intact after resizing
+    print(ht.retrieve("line_1"))
+    print(ht.retrieve("line_2"))
+    print(ht.retrieve("line_3"))
 
-    # print("")
+    print("")
